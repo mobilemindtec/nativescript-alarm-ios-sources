@@ -10,69 +10,59 @@
 import Foundation
 import MediaPlayer
 
-public  struct Alarm: PropertyReflectable {
-    public var date: Date = Date()
-    public var enabled: Bool = false
-    public var snoozeEnabled: Bool = false
-    //var repeatWeekdays: [Int] = []
-    //var uuid: String = ""
-    //var mediaID: String = ""
-    //var mediaLabel: String = "bell"
-    //var label: String = "Alarm"
-    //var onSnooze: Bool = false
+@objc public class Alarm : NSObject, PropertyReflectable {
+    @objc public var date: Date = Date()
+    @objc public var enabled: Bool = false
+    @objc public var snoozeEnabled: Bool = false
+    @objc public var id: Int = 0
+    @objc public var soundName: String = ""
+    @objc public var snoozeInterval: Int = 15
+    @objc public var repeatIntervalHours: Int = 0
+    @objc public var repeatIntervalDays: Int = 0
+    @objc public var buttonOkText: String = "OK"
+    @objc public var buttonSnoozeText: String = "Soneca"
+    @objc public var buttonOpenText: String = "Abrir"
+    @objc public var alertTitle: String = ""
+    @objc public var alertBody: String = ""
+    @objc public var onSnooze: Bool = false
+    @objc public var showButtonOk: Bool = false
+    @objc public var showButtonSnooze: Bool = false
+    @objc public var showButtonOpen: Bool = false
+    @objc public var now: Bool = false
+    @objc public var categoty: String = "myAlarmCategory"
     
-    
-    public var id: Int = 0
-    public var soundName: String = ""
-    public var snoozeInterval: Int = 15
-    public var repeatIntervalHours: Int = 0
-    public var repeatIntervalDays: Int = 0
-    
-    public var buttonOkText: String = "OK"
-    public var buttonSnoozeText: String = "Soneca"
-    public var alertBody: String = ""
-    public var alertAction: String = "Abrir"
-    
-    public var onSnooze: Bool = false
-    //var weekdays: [Int] = []
-    
-    var categoty: String = "myAlarmCategory"
-    
-    
-    public init(){}
+    @objc public override init(){}
 
-    
-    public init(id:Int, date:Date, enabled:Bool, snoozeEnabled:Bool){
+    public init(id:Int, date:Date, enabled:Bool, snoozeEnabled:Bool){          
         self.id = id
         self.date = date
         self.enabled = enabled
         self.snoozeEnabled = snoozeEnabled
-    }
+    }   
     
-    public init(_ dict: PropertyReflectable.RepresentationType){
+    public init(_ dict: PropertyReflectable.RepresentationType){        
         date = dict["date"] as! Date
         enabled = dict["enabled"] as! Bool
         snoozeEnabled = dict["snoozeEnabled"] as! Bool
-        //repeatWeekdays = dict["repeatWeekdays"] as! [Int]
-        //uuid = dict["uuid"] as! String
-        //mediaID = dict["mediaID"] as! String
-        //mediaLabel = dict["mediaLabel"] as! String
-        //label = dict["label"] as! String
         onSnooze = dict["onSnooze"] as! Bool
         id = dict["id"] as! Int
-        
         soundName = dict["soundName"] as! String
         snoozeInterval = dict["snoozeInterval"] as! Int
         repeatIntervalHours = dict["repeatIntervalHours"] as! Int
         repeatIntervalDays = dict["repeatIntervalDays"] as! Int
-        
         buttonOkText = dict["buttonOkText"] as! String
         buttonSnoozeText = dict["buttonSnoozeText"] as! String
+        buttonOpenText = dict["buttonOpenText"] as! String
         alertBody = dict["alertBody"] as! String
-        alertAction = dict["alertAction"] as! String
+        alertTitle = dict["alertTitle"] as! String        
+        showButtonOk = dict["showButtonOk"] as! Bool
+        showButtonOpen = dict["showButtonOpen"] as! Bool
+        showButtonSnooze = dict["showButtonSnooze"] as! Bool
+        now = dict["now"] as! Bool
+        categoty = dict["categoty"] as! String
     }
     
-    public static var propertyCount: Int = 14
+    @objc public static var propertyCount: Int = 19
 }
 
 public extension Alarm {
@@ -84,10 +74,10 @@ public extension Alarm {
 }
 
 //This can be considered as a viewModel
-public class Alarms: Persistable {
-    public let ud: UserDefaults = UserDefaults.standard
-    public let persistKey: String = "myAlarmKey"
-    public var alarms: [Alarm] = [] {
+@objc public class Alarms : NSObject, Persistable {
+    @objc public let ud: UserDefaults = UserDefaults.standard
+    @objc public let persistKey: String = "myAlarmKey"
+    @objc public var alarms: [Alarm] = [] {
         //observer, sync with UserDefaults
         didSet{
             persist()
@@ -95,26 +85,34 @@ public class Alarms: Persistable {
     }
     
     private func getAlarmsDictRepresentation()->[PropertyReflectable.RepresentationType] {
-        return alarms.map {$0.propertyDictRepresentation}
+        let items = alarms.filter(){
+            (it:Alarm) in it.enabled
+        }
+        return items.map {$0.propertyDictRepresentation}
     }
     
-    public init() {
-        alarms = getAlarms()
+    @objc public override init() {        
+        super.init()
+        alarms = self.getAlarms()
     }
     
-    public func persist() {
-        ud.set(getAlarmsDictRepresentation(), forKey: persistKey)
+    @objc public func persist() {
+        var items = getAlarmsDictRepresentation()
+        ud.set(items, forKey: persistKey)
         ud.synchronize()
     }
     
-    public func unpersist() {
+    @objc public func unpersist() {
         for key in ud.dictionaryRepresentation().keys {
             UserDefaults.standard.removeObject(forKey: key.description)
         }
     }
     
-    public var count: Int {
-        return alarms.count
+    @objc public var count: Int {
+        let items = alarms.filter(){
+            (it:Alarm) in it.enabled
+        }
+        return items.count
     }
     
     //helper, get all alarms from Userdefaults
@@ -124,8 +122,24 @@ public class Alarms: Persistable {
             return [Alarm]()
         }
         if let dicts = alarmArray as? [PropertyReflectable.RepresentationType]{
+            
+            var results: [Alarm] = []
+            
+            dicts.forEach(){
+                it in
+                if (it.count == Alarm.propertyCount){
+                    results.append(Alarm(it))
+                }
+            }
+            /*
             if dicts.first?.count == Alarm.propertyCount {
-                return dicts.map{Alarm($0)}
+                var results = dicts.map{Alarm($0)}
+                return results.filter(){
+                    (it:Alarm) in it.enabled
+                }
+            }*/
+            return results.filter(){
+                (it:Alarm) in it.enabled
             }
         }
         unpersist()

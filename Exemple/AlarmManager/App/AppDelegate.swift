@@ -12,32 +12,57 @@ import CoreData
 import AudioToolbox
 import AVFoundation
 import NativeScriptAlarm
+import UserNotifications
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
     var window: UIWindow?
     let alarmSupport: AlarmSupport = AlarmSupport()
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        
-        AlarmSupport.initAVAudioSession()
 
+        alarmSupport.onNotificationReceived  = {
+            alarm in
+            print("onNotificationReceived \(alarm)")
+        }
+        
+        alarmSupport.onNotificationActionOk  = {
+            alarm in
+            print("onNotificationActionOk \(alarm)")
+        }
+
+        alarmSupport.onNotificationActionSnooze  = {
+            alarm in
+            print("onNotificationActionSnooze \(alarm)")
+        }
+        
+        alarmSupport.onNotificationClick  = {
+            alarm in
+            print("onNotificationClick \(alarm)")
+        }
+
+        AlarmSupport.setUpNotifications(alarmSupport)
+        
         return true
     }
+
     
+    
+    /*
+        
     // executa quando o app está em primeiro plano
     func application(_ application: UIApplication, didReceive notification: UILocalNotification) {
         
-        
+        print("did receive notification")
         
         //show an alert window
         let storageController = UIAlertController(title: "Alarm", message: nil, preferredStyle: .alert)
         
         var alarm: Alarm? = alarmSupport.findAlarmByNotification(notification)
         
-        alarmSupport.playSound(alarm!.soundName, vibrate: true, numberOfLoops: -1)
+        alarmSupport.playSound(alarm!.soundName, true, -1)
         
         //schedule notification for snooze
         if alarm!.snoozeEnabled {
@@ -73,6 +98,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         alarmSupport.processSnooze(handleActionWithIdentifier: identifier, for: notification)
         completionHandler()
     }
+ */
     
     //print out all registed NSNotification for debug
     func application(_ application: UIApplication, didRegister notificationSettings: UIUserNotificationSettings) {

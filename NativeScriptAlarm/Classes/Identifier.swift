@@ -8,20 +8,22 @@
 
 import Foundation
 
-public struct Id {
-    public static let stopIdentifier = "Alarm-ios-swift-stop"
-    public static let snoozeIdentifier = "Alarm-ios-swift-snooze"
-    public static let addSegueIdentifier = "addSegue"
-    public static let editSegueIdentifier = "editSegue"
-    public static let saveSegueIdentifier = "saveEditSegue"
-    public static let soundSegueIdentifier = "soundSegue"
-    public static let labelSegueIdentifier = "labelEditSegue"
-    public static let weekdaysSegueIdentifier = "weekdaysSegue"
-    public static let settingIdentifier = "setting"
-    public static let musicIdentifier = "musicIdentifier"
-    public static let alarmCellIdentifier = "alarmCell"
+@objc public class Id: NSObject {
+    @objc public static let stopIdentifier = "Alarm-ios-swift-stop"
+    @objc public static let snoozeIdentifier = "Alarm-ios-swift-snooze"
+    @objc public static let addSegueIdentifier = "addSegue"
+    @objc public static let editSegueIdentifier = "editSegue"
+    @objc public static let saveSegueIdentifier = "saveEditSegue"
+    @objc public static let soundSegueIdentifier = "soundSegue"
+    @objc public static let labelSegueIdentifier = "labelEditSegue"
+    @objc public static let weekdaysSegueIdentifier = "weekdaysSegue"
+    @objc public static let settingIdentifier = "setting"
+    @objc public static let musicIdentifier = "musicIdentifier"
+    @objc public static let alarmCellIdentifier = "alarmCell"
     
-    public static let labelUnwindIdentifier = "labelUnwindSegue"
-    public static let soundUnwindIdentifier = "soundUnwindSegue"
-    public static let weekdaysUnwindIdentifier = "weekdaysUnwindSegue"
+    @objc public static let labelUnwindIdentifier = "labelUnwindSegue"
+    @objc public static let soundUnwindIdentifier = "soundUnwindSegue"
+    @objc public static let weekdaysUnwindIdentifier = "weekdaysUnwindSegue"
+
+    @objc public override init(){}
 }

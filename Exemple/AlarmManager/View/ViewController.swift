@@ -12,14 +12,17 @@ import NativeScriptAlarm
 
 class ViewController: UIViewController {
     
-    var alarmScheduler: AlarmSchedulerDelegate = Scheduler()
+    var alarmScheduler:Scheduler = Scheduler()
     var alarmModel: Alarms = Alarms()
     //var segueInfo: SegueInfo!
     @IBOutlet var timePicker: UIDatePicker!
+    @IBOutlet var txtAlarms: UILabel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -33,36 +36,37 @@ class ViewController: UIViewController {
     }
     
     @IBAction func onAgendar(sender: UIButton){
-        
-        print("\(timePicker.date)")
-        
-        let date = Scheduler.correctSecondComponent(date: timePicker.date)
-        
-        print("\(date)")
-        
-        //let index = segueInfo.curCellIndex
-        var tempAlarm = Alarm()
-        tempAlarm.date = date
-        //tempAlarm.label = segueInfo.label
+        let tempAlarm = Alarm()
+        tempAlarm.id = 1
+        tempAlarm.date = timePicker.date
         tempAlarm.enabled = true
-        //tempAlarm.mediaLabel = segueInfo.mediaLabel
-        //tempAlarm.mediaID = segueInfo.mediaID
         tempAlarm.snoozeEnabled = true
-        //tempAlarm.repeatWeekdays = segueInfo.repeatWeekdays
-        //tempAlarm.uuid = UUID().uuidString
-        tempAlarm.onSnooze = false
+        tempAlarm.onSnooze = false    
+        tempAlarm.alertTitle = "title"
+        tempAlarm.alertBody = "body"
         tempAlarm.soundName = "bell"
-        /*
-        if segueInfo.isEditMode {
-            alarmModel.alarms[index] = tempAlarm
-        }*/
-        //else {
-            alarmModel.alarms.append(tempAlarm)
-        //}
-        
-        alarmScheduler.reSchedule()
-        
+        tempAlarm.showButtonSnooze = true
+        tempAlarm.showButtonOk = true
+        alarmScheduler.schedule(tempAlarm)
     }
     
+    @IBAction func onShow(sender: UIButton){
+        var tempAlarm = Alarm()
+        tempAlarm.id = 2
+        tempAlarm.enabled = true
+        tempAlarm.alertTitle = "title"
+        tempAlarm.alertBody = "body"
+        alarmScheduler.show(tempAlarm)
+    }
+    @IBAction func onCancel(sender: UIButton){
+        alarmScheduler.cancelAll()
+        alarmScheduler.removeNotificaton()
+    }
+    
+    @IBAction func onGetAlarms(sender: UIButton){
+        print(alarmScheduler.getAlarms())
+    }
+
+
 }
 

@@ -11,17 +11,23 @@ import Foundation
 import CoreData
 import AudioToolbox
 import AVFoundation
+import UserNotifications
 
-
-
-public class AlarmSupport : NSObject, AVAudioPlayerDelegate{
+@objc public class AlarmSupport : NSObject, AVAudioPlayerDelegate, UNUserNotificationCenterDelegate{
     
-    public var audioPlayer: AVAudioPlayer?
-    public var audioPlayerDelegate: AVAudioPlayerDelegate?
-    public let scheduler: Scheduler = Scheduler()
-
+    @objc public var audioPlayer: AVAudioPlayer?
+    @objc public var audioPlayerDelegate: AVAudioPlayerDelegate?
+    @objc public let scheduler: Scheduler = Scheduler()
     
-    public static func initAVAudioSession(){
+    @objc public var onNotificationReceived: ((_ alarm: Alarm) -> Void)?
+    @objc public var onNotificationClick: ((_ alarm: Alarm) -> Void)?
+    @objc public var onNotificationActionOk: ((_ alarm: Alarm) -> Void)?
+    @objc public var onNotificationActionOpen: ((_ alarm: Alarm) -> Void)?
+    @objc public var onNotificationActionSnooze: ((_ alarm: Alarm) -> Void)?
+
+    @objc public override init(){}
+    
+    @objc public static func setUpNotifications(_ alarmSupport: AlarmSupport){
         
         var error: NSError?
         
@@ -37,11 +43,13 @@ public class AlarmSupport : NSObject, AVAudioPlayerDelegate{
             error = error1
             print("could not active session. err:\(error!.localizedDescription)")
         }
+        
+        let center = UNUserNotificationCenter.current()
+        center.delegate = alarmSupport
     }
+  
     
-    //AlarmApplicationDelegate protocol
-    //
-    public func playSound(_ soundName: String, vibrate: Bool, numberOfLoops: Int) {
+    @objc public func playSound(_ soundName: String, _ vibrate: Bool, _ numberOfLoops: Int) {
         
         if vibrate {
             //vibrate phone first
@@ -51,8 +59,7 @@ public class AlarmSupport : NSObject, AVAudioPlayerDelegate{
                                                   nil,
                                                   { (_:SystemSoundID, _:UnsafeMutableRawPointer?) -> Void in
                                                     AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
-            },
-                                                  nil)
+                                                  }, nil)
         }
         
         var bundle = Bundle(for: Scheduler.self)
@@ -81,7 +88,7 @@ public class AlarmSupport : NSObject, AVAudioPlayerDelegate{
         audioPlayer!.play()        
     }
     
-    public func stopSound(){
+    @objc public func stopSound(){
         if audioPlayer != nil {
             if audioPlayer!.isPlaying {
                 audioPlayer!.stop()
@@ -91,44 +98,107 @@ public class AlarmSupport : NSObject, AVAudioPlayerDelegate{
     }
     
     //AVAudioPlayerDelegate protocol
-    public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+    @objc public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         if audioPlayerDelegate != nil {
             audioPlayerDelegate?.audioPlayerDidFinishPlaying?(player, successfully: flag)
         }
     }
     
-    public func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
+    @objc public func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
         print("audioPlayerDecodeErrorDidOccur: \(error)")
         if audioPlayerDelegate != nil {
             audioPlayerDelegate?.audioPlayerDecodeErrorDidOccur?(player, error: error)
         }
     }
     
-    // executa quando o app está em segundo plano e a opção soneca é pressionada
-    public func processSnooze(handleActionWithIdentifier identifier: String?, for notification: UILocalNotification) {
-        
-        var alarm: Alarm? = findAlarmByNotification(notification)
-        if alarm != nil {
-            alarm!.onSnooze = false
-            if identifier == Id.snoozeIdentifier {
-                scheduler.setNotificationForSnooze(alarm!)
-                alarm!.onSnooze = true
-            }
-        }        
-    }
-    
-    public func findAlarmByNotification(_ notification: UILocalNotification) -> Alarm? {
+    @objc public func findAlarmByNotification(_ notification: UNNotification) -> Alarm? {
         
         let alarmModel = Alarms()
         var alarm: Alarm?
-        
-        if let userInfo = notification.userInfo {
-            alarm = alarmModel.alarms.first(){
-                it in it.id == userInfo["id"] as! Int
-            }
+        let userInfo = notification.request.content.userInfo
+
+        alarm = alarmModel.alarms.first(){
+            it in it.id == userInfo["id"] as! Int
         }
         
         return alarm
     }
     
+    @objc public func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        // Update the app interface directly.
+        
+        print("userNotificationCenter 1")
+        let alarm: Alarm? = self.findAlarmByNotification(notification)
+        
+        if self.onNotificationReceived != nil && alarm != nil {
+                self.onNotificationReceived!(alarm!)
+        }
+        
+        completionHandler(UNNotificationPresentationOptions.sound)
+    }
+    
+    @objc public func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        
+        print("userNotificationCenter 2")
+        let alarm: Alarm? = self.findAlarmByNotification(response.notification)
+        let dismiss: String = "GENERAL_DISMISS"
+        let category: String = response.notification.request.content.categoryIdentifier
+        
+        if alarm != nil && (category == alarm!.categoty || category == dismiss) {
+            
+            if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+                
+                if self.onNotificationClick != nil {
+                    self.onNotificationClick!(alarm!)
+                }
+                
+            } else if response.actionIdentifier == "OK_ACTION" {
+                if self.onNotificationActionOk != nil {
+                   self.onNotificationActionOk!(alarm!)
+                }
+            } else if response.actionIdentifier == "SNOOZE_ACTION" {
+                if self.onNotificationActionSnooze != nil {
+                    self.onNotificationActionSnooze!(alarm!)
+                }
+            } else if response.actionIdentifier == "OK_OPEN" {
+                if self.onNotificationActionOpen != nil {
+                    self.onNotificationActionOpen!(alarm!)
+                }
+            }
+        }
+        
+        completionHandler()
+    }
+    
+    @objc public static func makeDate(_ year: Int, _ month: Int, _ day: Int, _ hr: Int, _ min: Int, _ sec: Int) -> Date {
+        var calendar = Calendar(identifier: .gregorian)
+        // calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let components = DateComponents(year: year, month: month, day: day, hour: hr, minute: min, second: sec)
+        return calendar.date(from: components)!
+    }
+    
+    @objc public static func getDateComponents(_ alarm:Alarm) -> DateComponents {
+        let calendar = Calendar.current
+        var dateInfo = DateComponents()
+        dateInfo.year = calendar.component(Calendar.Component.year, from: alarm.date)
+        dateInfo.month = calendar.component(Calendar.Component.month, from: alarm.date)
+        dateInfo.day = calendar.component(Calendar.Component.day, from: alarm.date)
+        dateInfo.hour = calendar.component(Calendar.Component.hour, from: alarm.date)
+        dateInfo.minute = calendar.component(Calendar.Component.minute, from: alarm.date)
+        dateInfo.second = calendar.component(Calendar.Component.second, from: alarm.date)
+        return dateInfo
+    }
+    
+    @objc public static func requestAuthorization(_ completionHandler: ((Bool, Error?) -> Swift.Void)?) {
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound, .badge]) { (granted, error) in
+            if completionHandler != nil {
+                completionHandler!(granted, error)
+            }
+        }
+    }
 }

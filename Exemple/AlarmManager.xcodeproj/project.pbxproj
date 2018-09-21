@@ -15,6 +15,7 @@
 		8C93B10C21499AE0001EB601 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8C93B10B21499AE0001EB601 /* Assets.xcassets */; };
 		8C93B10F21499AE0001EB601 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C93B10D21499AE0001EB601 /* LaunchScreen.storyboard */; };
 		8CBE8E47214BF6C5006B6328 /* UIWindow+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CBE8E46214BF6C5006B6328 /* UIWindow+Extension.swift */; };
+		8CD8A8232155638C008170E0 /* bell.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 8CD8A8222155638B008170E0 /* bell.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,7 @@
 		8C93B10E21499AE0001EB601 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8C93B11021499AE0001EB601 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8CBE8E46214BF6C5006B6328 /* UIWindow+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIWindow+Extension.swift"; sourceTree = "<group>"; };
+		8CD8A8222155638B008170E0 /* bell.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bell.mp3; path = ../../../NativeScriptAlarm/Assets/bell.mp3; sourceTree = "<group>"; };
 		96ECCD03E9A8CF9B804EF127 /* Pods-AlarmManager.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlarmManager.release.xcconfig"; path = "Pods/Target Support Files/Pods-AlarmManager/Pods-AlarmManager.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -80,6 +82,7 @@
 		8C93B11C2149C622001EB601 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				8CD8A8222155638B008170E0 /* bell.mp3 */,
 			);
 			path = "Supporting Files";
 			sourceTree = "<group>";
@@ -179,6 +182,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8C93B10F21499AE0001EB601 /* LaunchScreen.storyboard in Resources */,
+				8CD8A8232155638C008170E0 /* bell.mp3 in Resources */,
 				8C93B10C21499AE0001EB601 /* Assets.xcassets in Resources */,
 				8C93B10721499ADD001EB601 /* Main.storyboard in Resources */,
 			);
@@ -381,7 +385,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = QVUFUDQE96;
 				INFOPLIST_FILE = AlarmManager/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -401,7 +405,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = QVUFUDQE96;
 				INFOPLIST_FILE = AlarmManager/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
