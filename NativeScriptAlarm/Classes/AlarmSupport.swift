@@ -128,8 +128,7 @@ import UserNotifications
                                 willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         // Update the app interface directly.
-        
-        print("userNotificationCenter 1")
+                
         let alarm: Alarm? = self.findAlarmByNotification(notification)
         
         if self.onNotificationReceived != nil && alarm != nil {
@@ -142,13 +141,20 @@ import UserNotifications
     @objc public func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
-        
-        print("userNotificationCenter 2")
+                
         let alarm: Alarm? = self.findAlarmByNotification(response.notification)
         let dismiss: String = "GENERAL_DISMISS"
         let category: String = response.notification.request.content.categoryIdentifier
         
+        print("****** userNotificationCenter")
+        print("****** response.notification \(response.notification)")
+        print("****** alarm \(alarm)")
+        print("****** category \(category)")
+        print("****** actionIdentifier \(response.actionIdentifier)")
+        
         if alarm != nil && (category == alarm!.categoty || category == dismiss) {
+            
+            print("****** alarm id \(alarm!.id)")
             
             if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
                 

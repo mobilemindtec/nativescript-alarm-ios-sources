@@ -37,7 +37,7 @@ class ViewController: UIViewController {
     
     @IBAction func onAgendar(sender: UIButton){
         let tempAlarm = Alarm()
-        tempAlarm.id = 1
+        tempAlarm.id = 3
         tempAlarm.date = timePicker.date
         tempAlarm.enabled = true
         tempAlarm.snoozeEnabled = true
@@ -45,8 +45,9 @@ class ViewController: UIViewController {
         tempAlarm.alertTitle = "title"
         tempAlarm.alertBody = "body"
         tempAlarm.soundName = "bell"
-        tempAlarm.showButtonSnooze = true
-        tempAlarm.showButtonOk = true
+        tempAlarm.showButtonSnooze = false
+        tempAlarm.showButtonOk = false
+        tempAlarm.showButtonOpen = true
         alarmScheduler.schedule(tempAlarm)
     }
     

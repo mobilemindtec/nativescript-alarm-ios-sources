@@ -41,9 +41,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         alarmSupport.onNotificationClick  = {
             alarm in
             print("onNotificationClick \(alarm)")
+            print("onNotificationClick id \(alarm.id)")
+        }
+        
+        alarmSupport.onNotificationActionOpen  = {
+            alarm in
+            print("onNotificationActionOpen \(alarm)")
+            print("onNotificationActionOpen id \(alarm.id)")
         }
 
         AlarmSupport.setUpNotifications(alarmSupport)
+        AlarmSupport.requestAuthorization(nil)
         
         return true
     }
@@ -99,6 +107,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         completionHandler()
     }
  */
+    
+    @objc public func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                             willPresent notification: UNNotification,
+                                             withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        // Update the app interface directly.
+        
+        print("userNotificationCenter1 ")
+        completionHandler(UNNotificationPresentationOptions.sound)
+    }
+    
+    @objc public func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                             didReceive response: UNNotificationResponse,
+                                             withCompletionHandler completionHandler: @escaping () -> Void) {
+        
+        print("userNotificationCenter2 ")
+    }
     
     //print out all registed NSNotification for debug
     func application(_ application: UIApplication, didRegister notificationSettings: UIUserNotificationSettings) {
