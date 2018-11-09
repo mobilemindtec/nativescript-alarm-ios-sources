@@ -201,7 +201,7 @@ import UserNotifications
     }
     
     @objc public static func alarmToDict(_ alarm: Alarm) -> NSDictionary {
-        var dict: NSMutableDictionary = [
+        let dict: NSMutableDictionary = [
             "date": alarm.date,
             "enabled": alarm.enabled,
             "snoozeEnabled": alarm.snoozeEnabled,
