@@ -146,15 +146,7 @@ import UserNotifications
         let dismiss: String = "GENERAL_DISMISS"
         let category: String = response.notification.request.content.categoryIdentifier
         
-        print("****** userNotificationCenter")
-        print("****** response.notification \(response.notification)")
-        print("****** alarm \(alarm)")
-        print("****** category \(category)")
-        print("****** actionIdentifier \(response.actionIdentifier)")
-        
         if alarm != nil && (category == alarm!.categoty || category == dismiss) {
-            
-            print("****** alarm id \(alarm!.id)")
             
             if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
                 
@@ -206,5 +198,30 @@ import UserNotifications
                 completionHandler!(granted, error)
             }
         }
+    }
+    
+    @objc public static func alarmToDict(_ alarm: Alarm) -> NSDictionary {
+        var dict: NSMutableDictionary = [
+            "date": alarm.date,
+            "enabled": alarm.enabled,
+            "snoozeEnabled": alarm.snoozeEnabled,
+            "id": alarm.id,
+            "soundName": alarm.soundName,
+            "snoozeInterval": alarm.snoozeInterval,
+            "repeatIntervalHours": alarm.repeatIntervalHours,
+            "repeatIntervalDays": alarm.repeatIntervalDays,
+            "buttonOkText": alarm.buttonOkText,
+            "buttonSnoozeText": alarm.buttonSnoozeText,
+            "buttonOpenText": alarm.buttonOpenText,
+            "alertTitle": alarm.alertTitle,
+            "alertBody": alarm.alertBody,
+            "onSnooze": alarm.onSnooze,
+            "showButtonOk": alarm.showButtonOk,
+            "showButtonSnooze": alarm.showButtonSnooze,
+            "showButtonOpen": alarm.showButtonOpen,
+            "now": alarm.now,
+            "categoty": alarm.categoty
+        ]
+        return dict
     }
 }
